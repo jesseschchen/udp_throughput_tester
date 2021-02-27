@@ -49,7 +49,6 @@ void* update_client_rate(void* arg) {
 	struct timespec start, end;
 	size_t segment_rate;
 	uint8_t matched = 0;
-
 	while(!matched) {
 		*segment_total = 0;
 		clock_gettime(CLOCK_MONOTONIC, &start);
@@ -63,8 +62,10 @@ void* update_client_rate(void* arg) {
 		printf("observed rate: %li\n", segment_rate);
 		send(conn_fd, &segment_rate, sizeof(segment_rate), 0);
 
-		recv(conn_fd, &matched, sizeof(matched), 0);
+		if (recv(conn_fd, &matched, sizeof(matched), 0) == 0)
+			break;
 	}
+	printf("loop exit\n");
 	close(conn_fd);
 }
 
